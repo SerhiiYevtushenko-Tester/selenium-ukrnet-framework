@@ -1,4 +1,5 @@
 target/
+logs/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -38,5 +39,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-# Секретні файли з паролями
+# Secret files with passwords
 secret.properties

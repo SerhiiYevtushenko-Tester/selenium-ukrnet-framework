@@ -1,14 +1,23 @@
 package com.epam.rd.autotasks.tests;
 
+import com.epam.rd.autotasks.models.EmailMessage;
+import com.epam.rd.autotasks.models.User;
 import com.epam.rd.autotasks.pages.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class MailboxTests extends BaseTest {
+    private static final Logger logger = LogManager.getLogger(MailboxTests.class);
+
     private InboxPage inboxPage;
     private DraftsPage draftsPage;
     private SentPage sentPage;
     private ComposeEmailComponent composeMail;
+
+    private User testUser;
+    private EmailMessage testMessage;
 
     private final String uniqueId = String.valueOf(System.currentTimeMillis());
     private final String subject = "Thoughts on The Way of Kings " + uniqueId;
@@ -16,13 +25,17 @@ public class MailboxTests extends BaseTest {
 
     @Test(priority = 1)
     public void testCreateDraft() {
+        logger.info("Starting testCreateDraft with subject: {}", subject);
+        testUser = new User(email, password);
+        testMessage = new EmailMessage(recipient, subject, body);
+
         LoginPage loginPage = new LoginPage(driver);
-        inboxPage = loginPage.login(email, password);
+        inboxPage = loginPage.login(testUser);
 
         Assert.assertTrue(inboxPage.isLoginSuccessful(), "Login failed!");
 
         composeMail = inboxPage.clickCompose();
-        composeMail.fillEmailDetails(recipient, subject, body);
+        composeMail.fillEmailDetails(testMessage);
         composeMail.saveAsDraft();
 
         draftsPage = inboxPage.goToDrafts();
@@ -30,32 +43,37 @@ public class MailboxTests extends BaseTest {
 
         composeMail = draftsPage.openDraft(subject);
 
-        Assert.assertEquals(composeMail.getRecipientsValue(), recipient, "Draft recipient does not match!");
-        Assert.assertEquals(composeMail.getSubjectValue(), subject, "Draft subject does not match!");
-        Assert.assertEquals(composeMail.getBodyValue(), body, "Draft body does not match!");
+        Assert.assertEquals(composeMail.getRecipientsValue(), testMessage.getTo(), "Draft recipient does not match!");
+        Assert.assertEquals(composeMail.getSubjectValue(), testMessage.getSubject(), "Draft subject does not match!");
+        Assert.assertEquals(composeMail.getBodyValue(), testMessage.getBody(), "Draft body does not match!");
 
         composeMail.saveAsDraft();
+        logger.info("testCreateDraft completed successfully");
     }
 
     @Test(priority = 2, dependsOnMethods = "testCreateDraft")
     public void testSendDraft() {
+        logger.info("Starting testSendDraft for subject: {}", subject);
         draftsPage = inboxPage.goToDrafts();
         composeMail = draftsPage.openDraft(subject);
 
-        Assert.assertEquals(composeMail.getSubjectValue(), subject, "Subject mismatch before sending!");
+        Assert.assertEquals(composeMail.getSubjectValue(), testMessage.getSubject(), "Subject mismatch before sending!");
 
         composeMail.sendEmail();
 
         draftsPage = inboxPage.goToDrafts();
         Assert.assertFalse(draftsPage.isDraftPresent(subject), "Mail is still present in Drafts after sending!");
+        logger.info("testSendDraft completed successfully");
     }
 
     @Test(priority = 3, dependsOnMethods = "testSendDraft")
     public void testVerifySentAndLogout() {
+        logger.info("Starting testVerifySentAndLogout");
         sentPage = inboxPage.goToSent();
         Assert.assertTrue(sentPage.isMailPresent(subject), "Mail is not present in Sent folder!");
 
         LoginPage loginPage = inboxPage.logout();
         Assert.assertTrue(loginPage.isLoginScreenDisplayed(), "Logout was not successful, login form is not visible!");
+        logger.info("testVerifySentAndLogout completed successfully");
     }
 }

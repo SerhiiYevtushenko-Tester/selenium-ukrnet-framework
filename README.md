@@ -1,12 +1,31 @@
-# Selenium Mailbox Automation Task
+# Selenium Mailbox Automation Framework
 
-Automated UI tests for Ukr.net mailbox functionality implemented using Java, Selenium WebDriver, TestNG, and the Page Object Model (POM) design pattern.
+Automated UI testing framework for the Ukr.net mail service
+built using Java, Selenium WebDriver, TestNG, and the Page Object Model (POM).
 
-## Prerequisites
+## Tech Stack & Dependencies
 
-* **Java Development Kit (JDK)**: Version 17 or higher.
-* **Maven**: For dependency management and building the project.
-* **Browser**: Google Chrome installed.
+* **Language**: Java (JDK 17+, compatible with JDK 26)
+* **Automation Tool**: Selenium WebDriver (v4.23.0)
+* **Testing Framework**: TestNG (v7.10.2)
+* **Logging**: Apache Log4j2 (v2.23.1)
+* **Build Tool**: Maven
+
+## Key Features & Architecture
+
+1. Page Object Model (POM) & Component-Based Structure:
+   Separation of pages (`LoginPage`, `InboxPage`, `DraftsPage`, `SentPage`)
+   and components (`ComposeEmailComponent`).
+2. Cross-Browser Support: Dynamic driver initialization in `BaseTest`
+   supporting Chrome, Firefox, and Edge via execution parameters.
+3. Environment Management: Multi-environment configuration support
+   (`qa.properties`, `dev.properties`) handled via `ConfigProvider`.
+4. Advanced Logging (Log4j2): Detailed execution logs output
+   to console and daily rotating log files (`logs/automation.log`).
+5. Robust Failure Management: Custom `TestListener` that captures
+   screenshots (`target/screenshots/`) automatically on test failure.
+6. Robust Wait Strategies: Precise `WebDriverWait` combined with
+   resilient JavaScript fallbacks for dynamic elements.
 
 ## Important Note (UI Language)
 ⚠️ **The Ukr.net interface language must be set to Ukrainian.**
@@ -19,28 +38,27 @@ To protect sensitive credentials, authentication data is excluded from version c
 1. Go to the `src/main/resources` folder.
 2. Create a new file named `secret.properties` (based on the provided `secret.properties.example` template).
 3. Fill in your actual Ukr.net credentials and recipient email inside `secret.properties`:
-
 ```properties
-mail.email=your_actual_username  
-mail.password=your_actual_password  
-mail.recipient=recipient_email@ukr.net  
+mail.email=your_actual_username
+mail.password=your_actual_password
+mail.recipient=your_recipient@ukr.net
 ```
 
-*(Note: `secret.properties` is ignored by Git to prevent exposing credentials).*
-
-## Wait Strategy
-
-This project combines implicit and explicit waits to ensure stability while handling Ukr.net's dynamic UI:
-
-- **Implicit Wait:** A baseline timeout (e.g., 3 seconds) configured in `BaseTest.java` to act as a global safety net for element searches.
-- **Explicit Wait:** Used extensively across Page Objects (`WebDriverWait` with `ExpectedConditions`) to handle dynamic components, such as waiting for the TinyMCE editor to initialize, inputs to become clickable, or elements to disappear.
+*(Note: `secret.properties` is ignored by Git).*
 
 ## Running Tests
 
-You can run the tests via Maven from your terminal:
-
+Execute tests via Maven terminal:
 ```bash
 mvn clean test 
 ```
 
-Or directly run `MailboxTests.java` via your IDE (IntelliJ IDEA).
+### Advanced Execution Parameters (VM Options)
+
+* Specify Browser: `-Dbrowser=firefox` or `-Dbrowser=edge` (defaults to chrome)
+* Specify Environment: `-Denv=dev` (defaults to qa)
+
+Example command:
+```bash
+mvn test -Dbrowser=chrome -Denv=qa
+```
