@@ -33,9 +33,11 @@ test.recipient=recipient_email@ukr.net
 ```
 
 ---
+
 ## ⚠️ Important Note (UI Language)
-**The Ukr.net interface language must be set to Ukrainian.**
+The Ukr.net interface language must be set to Ukrainian.**
 The tests rely on Ukrainian element locators and text selectors (e.g., folder names and buttons). If your account uses a different language, please switch it to Ukrainian in your mailbox settings before running the tests.
+
 ---
 
 ## 🚀 How to Run Tests
