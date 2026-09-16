@@ -23,7 +23,7 @@ public class TestListener implements ITestListener {
         logger.error("Test failed: {}", result.getName());
 
         Object currentClass = result.getInstance();
-        WebDriver driver = ((BaseTest) currentClass).driver;
+        WebDriver driver = ((BaseTest) currentClass).getDriver();
 
         if (driver != null) {
             TakesScreenshot ts = (TakesScreenshot) driver;

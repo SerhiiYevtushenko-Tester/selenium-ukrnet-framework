@@ -3,6 +3,7 @@ package com.epam.rd.autotasks.tests;
 import com.epam.rd.autotasks.models.EmailMessage;
 import com.epam.rd.autotasks.models.User;
 import com.epam.rd.autotasks.pages.*;
+import com.epam.rd.autotasks.utils.ConfigProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -19,9 +20,10 @@ public class MailboxTests extends BaseTest {
     private User testUser;
     private EmailMessage testMessage;
 
+    // Читаємо дані з properties, як просив ментор
     private final String uniqueId = String.valueOf(System.currentTimeMillis());
-    private final String subject = "Thoughts on The Way of Kings " + uniqueId;
-    private final String body = "I highly recommend starting The Way of Kings!";
+    private final String subject = ConfigProvider.getProperty("test.email.subject") + " " + uniqueId;
+    private final String body = ConfigProvider.getProperty("test.email.body");
 
     @Test(priority = 1)
     public void testCreateDraft() {
@@ -29,7 +31,7 @@ public class MailboxTests extends BaseTest {
         testUser = new User(email, password);
         testMessage = new EmailMessage(recipient, subject, body);
 
-        LoginPage loginPage = new LoginPage(driver);
+        LoginPage loginPage = new LoginPage(getDriver());
         inboxPage = loginPage.login(testUser);
 
         Assert.assertTrue(inboxPage.isLoginSuccessful(), "Login failed!");

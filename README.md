@@ -1,64 +1,72 @@
-# Selenium Mailbox Automation Framework
+# Selenium UI Automation Framework (Ukr.net Mailbox)
 
-Automated UI testing framework for the Ukr.net mail service
-built using Java, Selenium WebDriver, TestNG, and the Page Object Model (POM).
+Automated UI testing framework for Ukr.net mail service built with **Java**, **Selenium WebDriver**, **TestNG**, and **Log4j2**, following the **Page Object Model (POM)** pattern with component-based architecture and CI/CD integration.
 
-## Tech Stack & Dependencies
+---
 
-* **Language**: Java (JDK 17+, compatible with JDK 26)
-* **Automation Tool**: Selenium WebDriver (v4.23.0)
-* **Testing Framework**: TestNG (v7.10.2)
-* **Logging**: Apache Log4j2 (v2.23.1)
-* **Build Tool**: Maven
+## 🛠 Tech Stack & Tools
+* **Language:** Java 26
+* **Automation Tool:** Selenium WebDriver 4.23.0
+* **Test Framework:** TestNG 7.10.2
+* **Logging:** Log4j2 (Console + Daily Rolling File appenders)
+* **Build Tool:** Maven (Surefire plugin for suite management)
+* **CI/CD:** Jenkins (`Jenkinsfile`)
 
-## Key Features & Architecture
+---
 
-1. Page Object Model (POM) & Component-Based Structure:
-   Separation of pages (`LoginPage`, `InboxPage`, `DraftsPage`, `SentPage`)
-   and components (`ComposeEmailComponent`).
-2. Cross-Browser Support: Dynamic driver initialization in `BaseTest`
-   supporting Chrome, Firefox, and Edge via execution parameters.
-3. Environment Management: Multi-environment configuration support
-   (`qa.properties`, `dev.properties`) handled via `ConfigProvider`.
-4. Advanced Logging (Log4j2): Detailed execution logs output
-   to console and daily rotating log files (`logs/automation.log`).
-5. Robust Failure Management: Custom `TestListener` that captures
-   screenshots (`target/screenshots/`) automatically on test failure.
-6. Robust Wait Strategies: Precise `WebDriverWait` combined with
-   resilient JavaScript fallbacks for dynamic elements.
+## 📂 Project Structure
+* `src/main/java/.../pages` — Page Objects and Components (`BasePage`, `LoginPage`, `InboxPage`, `DraftsPage`, `SentPage`, `ComposeEmailComponent`)
+* `src/main/java/.../models` — Business Objects (`User`, `EmailMessage`)
+* `src/main/java/.../driver` — Thread-safe `DriverManager` with `ThreadLocal` support
+* `src/main/java/.../utils` — Configuration provider (`ConfigProvider`) supporting multi-environment properties
+* `src/test/java/.../listeners` — `TestListener` for automatic failure screenshot capture and logging
+* `src/test/resources/` — TestNG XML suites (`smoke.xml`, `regression.xml`) and environment properties (`qa.properties`, `dev.properties`)
 
-## Important Note (UI Language)
-⚠️ **The Ukr.net interface language must be set to Ukrainian.**
-The tests rely on Ukrainian element locators and text selectors (e.g., folder names and buttons). If your account uses a different language, please switch it to Ukrainian in your mailbox settings before running the tests.
+---
 
-## Configuration & Security
-
-To protect sensitive credentials, authentication data is excluded from version control.
-
-1. Go to the `src/main/resources` folder.
-2. Create a new file named `secret.properties` (based on the provided `secret.properties.example` template).
-3. Fill in your actual Ukr.net credentials and recipient email inside `secret.properties`:
+## ⚙️ Configuration
+Before running tests, ensure you have a `secret.properties` file in `src/main/resources/` with your credentials (ignored by Git):
 ```properties
-mail.email=your_actual_username
-mail.password=your_actual_password
-mail.recipient=your_recipient@ukr.net
+mail.email=your_email@ukr.net
+mail.password=your_password
+test.recipient=recipient_email@ukr.net
 ```
 
-*(Note: `secret.properties` is ignored by Git).*
+---
+## ⚠️ Important Note (UI Language)
+**The Ukr.net interface language must be set to Ukrainian.**
+The tests rely on Ukrainian element locators and text selectors (e.g., folder names and buttons). If your account uses a different language, please switch it to Ukrainian in your mailbox settings before running the tests.
+---
 
-## Running Tests
+## 🚀 How to Run Tests
 
-Execute tests via Maven terminal:
-```bash
-mvn clean test 
-```
+You can execute tests via Maven from the command line with flexible parameters for browser, environment, and test suite.
 
-### Advanced Execution Parameters (VM Options)
+### Available Parameters:
+* `-Dbrowser` — target browser (`chrome`, `firefox`, `edge`). Default: `chrome`
+* `-Denv` — test environment (`qa`, `dev`). Default: `qa`
+* `-DsuiteXmlFile` — path to TestNG XML suite. Default: `src/test/resources/regression.xml`
 
-* Specify Browser: `-Dbrowser=firefox` or `-Dbrowser=edge` (defaults to chrome)
-* Specify Environment: `-Denv=dev` (defaults to qa)
+### Execution Examples:
 
-Example command:
-```bash
-mvn test -Dbrowser=chrome -Denv=qa
-```
+1. **Run full Regression suite (default configuration):**
+   ```bash
+   mvn clean test
+   ```
+
+2. **Run Smoke suite on Chrome with QA environment:**
+   ```bash
+   mvn clean test -Dbrowser=chrome -Denv=qa -DsuiteXmlFile=src/test/resources/smoke.xml
+   ```
+
+3. **Run Regression suite on Firefox with DEV environment:**
+   ```bash
+   mvn clean test -Dbrowser=firefox -Denv=dev -DsuiteXmlFile=src/test/resources/regression.xml
+   ```
+
+---
+
+## 📊 Reporting & CI/CD
+* **Logs:** Execution logs are automatically generated in `logs/automation.log` with daily rollover.
+* **Screenshots on Failure:** If a test fails, `TestListener` captures a screenshot and saves it to `target/screenshots/` with a detailed error log.
+* **Jenkins Pipeline:** The repository includes a `Jenkinsfile` supporting parameterized builds (`BROWSER`, `ENV`, `SUITE`), TestNG trend report publishing, and archiving of failure screenshots and logs as build artifacts.
